@@ -62,7 +62,7 @@
                 <div class="col-md-12 text-center" style="margin-top: 25%">
                     <div class="row">
                         <input type="text" name="name" id="search_value" required="required" class="form wp2"
-                               placeholder="请填写车牌号(例如:沪A123456)">
+                               placeholder="请填写车牌号(例如:沪A12345)">
                     </div>
                     <a href="javascript:void(0)" id="search" class="read-btn animated fadeInUp">查询</a>
                     <h1 id="noExtension" style="display: none">请安装
@@ -76,7 +76,7 @@
 <section class="book-record" id="app">
     <div class="container">
         <div class="title-section text-center">
-            <h2 style="margin-top: 100px;color:#7868b3">借阅记录</h2>
+            <h2 style="margin-top: 100px;color:#7868b3">租借记录</h2>
             <div class="divider">
                 <i class="fa fa-star-o fa-lg"></i>
             </div>
@@ -97,7 +97,7 @@
                 <td v-html="l.key"></td>
                 <td v-html="l.name"></td>
                 <td v-html="l.phone"></td>
-                <td v-html="l.date"></td>
+                <td v-html="l.time"></td>
                 <td v-html="l.date"></td>
                 <td v-html="l.remark"></td>
             </tr>
@@ -161,7 +161,7 @@
                     <input type="tel" id="phone" class="form" placeholder="租车人手机号" maxlength="11">
                 </div>
                 <div class="col-xs-6">
-                    <input type="tel" id="time" class="form" placeholder="租车时长" maxlength="11">
+                    <input type="number" id="time" class="form" placeholder="租车时长" maxlength="11">
                 </div>
                 <div class="col-xs-6">
                     <input type="date" id="date" class="form" placeholder="租车日期" style="line-height: normal">
@@ -211,7 +211,7 @@
         var NebPay = require("nebpay");
         var nebPay = new NebPay();
 
-        var dappAddress = "n1kYkftJK3u9h3t6zUKXopRf8qDX99AX71y";
+        var dappAddress = "n1gieT2Bm1Z4zRC97kGo4CrnzMgHQTVxJEy";
         //检查扩展是否已安装
         //如果安装了扩展，var“webExtensionWallet”将被注入到web页面中1
         setTimeout(function () {
@@ -225,7 +225,7 @@
         $("#search").click(function () {
             var search_value = $("#search_value").val();
             if (search_value == '') {
-                search_value = '三国'
+                search_value = '沪A12345'
             }
             var to = dappAddress;
             var value = "0";
@@ -246,7 +246,7 @@
                 }, function (index) {
                     layer.close(index);
                     location.href = "#set";
-                    $('#name').val($("#search_value").val() || '三国');
+                    $('#name').val($("#search_value").val() || '沪A12345');
                 }, function () {
                     console.log(1);
                 });
@@ -260,6 +260,7 @@
                         name: resultObj.name.split('|-')[i],
                         phone: resultObj.phone.split('|-')[i],
                         date: resultObj.date.split('|-')[i],
+                        time: resultObj.time.split('|-')[i],
                         key: resultObj.key,
                         remark: resultObj.remark.split('|-')[i]
                     }
@@ -284,18 +285,22 @@
             var user = $('#user').val();
             var phone = $('#phone').val();
             var date = $('#date').val();
+            var time = $('#time').val();
             var remark = $('#remark').val();
             if (name == '') {
-                layer.msg('图书名称不能为空');
+                layer.msg('车牌号不能为空');
                 return;
             } else if (user == '') {
-                layer.msg('借阅人不能为空');
+                layer.msg('租车人姓名不能为空');
                 return;
             } else if (phone == '') {
-                layer.msg('借阅人手机号不能为空');
+                layer.msg('租车人手机号不能为空');
+                return;
+            } else if (time == '') {
+                layer.msg('租车时长不能为空');
                 return;
             } else if (date == '') {
-                layer.msg('借阅时间不能为空');
+                layer.msg('租车日期不能为空');
                 return;
             }
             var to = dappAddress;
@@ -305,7 +310,8 @@
             callArgs.push(name);
             callArgs.push(user);
             callArgs.push(phone);
-            callArgs.push(new Date().format("yyyy-MM-dd"))
+            callArgs.push(time);
+            callArgs.push(new Date().format("yyyy-MM-dd"));
             callArgs.push(remark);
             nebPay.call(to, value, callFunction, JSON.stringify(callArgs), {
                 listener: cbPush
